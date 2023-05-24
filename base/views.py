@@ -34,3 +34,18 @@ def task_create(request):
             return render(request, "task_create.html", {"form": form, 'error': 'Bad data passed in. Try again.'})
     else:
         return render(request, "task_create.html", {"form": CreateTaskForm()})
+
+
+def task_update(request, id):
+    task = Task.objects.get(pk=id)
+    if request.method == "GET":
+        form = CreateTaskForm(instance=task)
+        return render(request, "task_update.html", {"form": form})
+    else:
+        form = CreateTaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect("tasks")
+        else:
+            error = "Data is not valid"
+            return render(request, "task_update.html", {"form": form, "error": error})

@@ -1,0 +1,6 @@
+<h3>Update task</h3>
+<p>{{error}}</p>
+<form method="POST">
+  {% csrf_token %} {{form.as_p}}
+  <button>Update</button>
+</form>
