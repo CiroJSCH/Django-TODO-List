@@ -49,3 +49,12 @@ def task_update(request, id):
         else:
             error = "Data is not valid"
             return render(request, "task_update.html", {"form": form, "error": error})
+
+
+def task_delete(request, id):
+    task = Task.objects.get(pk=id)
+    if request.method == "POST":
+        task.delete()
+        return redirect("tasks")
+    else:
+        return render(request, "task_delete.html", {"task": task})
