@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 
 @login_required
 def task_list(request):
-    tasks = Task.objects.all()
+    tasks = Task.objects.filter(user=request.user)
     return render(request, "tasks.html", {"tasks": tasks})
 
 
@@ -25,8 +25,7 @@ def task_create(request):
     if request.method == "POST":
         form = CreateTaskForm(request.POST)
         if form.is_valid():
-            # Hardcodeado por el momento
-            user = User(id=1)
+            user = request.user
             title = form.cleaned_data["title"]
             description = form.cleaned_data["description"]
             completed = form.cleaned_data["completed"]
