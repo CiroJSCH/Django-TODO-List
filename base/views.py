@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Task
-from .forms import CreateTaskForm, SignInForm
+from .forms import CreateTaskForm, SignInForm, SignUpForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -88,3 +88,24 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect("login")
+
+
+def signup(request):
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        password1 = request.POST["password1"]
+        password2 = request.POST["password2"]
+        if password1 != password2:
+            return render(request, "signup.html", {"form": form, "error": "Passwords do not match"})
+        else:
+            if form.is_valid():
+                user = User.objects.create_user(
+                    username=request.POST["username"], password=password1)
+                user.save()
+                login(request, user)
+                return redirect("tasks")
+            else:
+                return render(request, "signup.html", {"form": form, "error": "Bad data passed in. Try again."})
+    else:
+        form = SignUpForm()
+        return render(request, "signup.html", {"form": form})

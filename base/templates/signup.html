@@ -1,0 +1,6 @@
+<h3>Register</h3>
+<p>{{error}}</p>
+<form action="{% url 'signup' %}" method="POST">
+  {% csrf_token %} {{form.as_p}}
+  <button>Register</button>
+</form>
