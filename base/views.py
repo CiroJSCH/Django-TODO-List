@@ -1,21 +1,26 @@
 from django.shortcuts import render, redirect
 from .models import Task
-from .forms import CreateTaskForm
+from .forms import CreateTaskForm, SignInForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 # Create your views here.
 
 
+@login_required
 def task_list(request):
     tasks = Task.objects.all()
     return render(request, "tasks.html", {"tasks": tasks})
 
 
+@login_required
 def task_detail(request, id):
     task = Task.objects.get(pk=id)
     return render(request, 'task_detail.html', {'task': task})
 
 
+@login_required
 def task_create(request):
     if request.method == "POST":
         form = CreateTaskForm(request.POST)
@@ -36,6 +41,7 @@ def task_create(request):
         return render(request, "task_create.html", {"form": CreateTaskForm()})
 
 
+@login_required
 def task_update(request, id):
     task = Task.objects.get(pk=id)
     if request.method == "GET":
@@ -51,6 +57,7 @@ def task_update(request, id):
             return render(request, "task_update.html", {"form": form, "error": error})
 
 
+@login_required
 def task_delete(request, id):
     task = Task.objects.get(pk=id)
     if request.method == "POST":
@@ -58,3 +65,26 @@ def task_delete(request, id):
         return redirect("tasks")
     else:
         return render(request, "task_delete.html", {"task": task})
+
+
+def signin(request):
+    if request.method == "POST":
+        form = SignInForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect("tasks")
+            else:
+                return render(request, 'login.html', {'form': form, 'error': 'Invalid credentials'})
+        else:
+            return render(request, 'login.html', {'form': form, 'error': 'Bad data passed in. Try again.'})
+    else:
+        return render(request, 'login.html', {'form': SignInForm()})
+
+
+def signout(request):
+    logout(request)
+    return redirect("login")
