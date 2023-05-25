@@ -10,7 +10,11 @@ from django.contrib.auth.models import User
 
 @login_required
 def task_list(request):
-    tasks = Task.objects.filter(user=request.user)
+    search = request.GET.get('search_area') or ''
+    if search:
+        tasks = Task.objects.filter(user=request.user, title__icontains=search)
+    else:
+        tasks = Task.objects.filter(user=request.user)
     return render(request, "tasks.html", {"tasks": tasks})
 
 
